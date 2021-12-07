@@ -1,22 +1,24 @@
 package util
 
 import (
+	"account-go/config"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"github.com/spf13/viper"
 )
 
 var DB *gorm.DB
 
 // InitDB 初始化数据库连接
 func InitDB() *gorm.DB {
-	driverName := viper.GetString("datasource.driverName")
-	host := viper.GetString("datasource.host")
-	port := viper.GetString("datasource.port")
-	database := viper.GetString("datasource.database")
-	userName := viper.GetString("datasource.username")
-	password := viper.GetString("datasource.password")
-	charset := viper.GetString("datasource.charset")
+	driverName := config.Config.Datasource.DriverName
+	host := config.Config.Datasource.Host
+	port := config.Config.Datasource.Port
+	database := config.Config.Datasource.Database
+	userName := config.Config.Datasource.Username
+	password := config.Config.Datasource.Password
+	charset := config.Config.Datasource.Charset
+
 	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true",
 		userName, password, host, port, database, charset)
 
