@@ -2,7 +2,7 @@ package model
 
 // Subject 科目实体
 type Subject struct {
-	Id int `json:"id"`
+	Id int `gorm:"primary_key" json:"id"`
 	// 科目名称
 	SubName string `json:"subName"`
 	// 父级id

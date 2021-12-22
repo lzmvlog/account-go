@@ -6,7 +6,12 @@ import (
 )
 
 func CollectRouter(r *gin.Engine) *gin.Engine {
-	r.GET("/sub/list", controller.List)
-	r.POST("/sub/save", controller.Save)
+	sub := r.Group("/sub")
+	{
+		sub.GET("/list", controller.List)
+		sub.POST("/save", controller.Save)
+		sub.POST("/update", controller.Update)
+		sub.POST("/page", controller.Page)
+	}
 	return r
 }
