@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	// 初始化数据库
 	db := util.InitDB()
 	// 关闭数据库连接

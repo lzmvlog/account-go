@@ -1,9 +1,13 @@
 package config
 
 import (
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 var (
@@ -45,4 +49,17 @@ func init() {
 	}
 	Config = &v
 	log.Printf("配置文件信息:%+v", v)
+
+	initLog()
+}
+
+// initLog 配置日志
+func initLog() {
+	// 配置 log
+	logfile, err := os.Create("./gin_http.log")
+	if err != nil {
+		fmt.Println("Could not create log file")
+	}
+	gin.SetMode(gin.DebugMode)
+	gin.DefaultWriter = io.MultiWriter(logfile)
 }
