@@ -3,7 +3,6 @@ package controller
 import (
 	"account-go/model"
 	"account-go/util"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -22,12 +21,12 @@ func Page(c *gin.Context) {
 
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
-		fmt.Println(nil)
+		util.Fail(c, "Atoi error")
 	}
 
 	sizeInt, err := strconv.Atoi(size)
 	if err != nil {
-		fmt.Println(nil)
+		util.Fail(c, "Atoi error")
 	}
 	var count int
 	util.DB.Model(model.Subject{}).Where("is_enable = 0").Count(&count)
@@ -39,21 +38,31 @@ func Page(c *gin.Context) {
 
 // Save 保存科目表表
 func Save(c *gin.Context) {
+	tx := util.DB.Begin()
 	sub := model.Subject{}
 	c.ShouldBindJSON(&sub)
-	err := util.DB.Create(sub)
+	err := tx.Create(sub).Error
 	if err != nil {
 		util.Fail(c, "save subject error")
+		tx.Rollback()
 		return
 	}
+	tx.Commit()
 	util.Success(c, gin.H{}, "")
 }
 
 // Update 更新科目表
 func Update(c *gin.Context) {
+	tx := util.DB.Begin()
 	sub := model.Subject{}
 	c.ShouldBindJSON(&sub)
-	util.DB.Model(model.Subject{}).Update(&sub)
+	err := tx.Model(model.Subject{}).Where(sub.Id).Updates(sub).Error
+	if err != nil {
+		util.Fail(c, "update subject error")
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 	util.Success(c, gin.H{}, "")
 }
 
@@ -63,7 +72,7 @@ func FindOne(c *gin.Context) {
 
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		fmt.Println(nil)
+		util.Fail(c, "Atoi error")
 	}
 
 	sub := model.Subject{Id: idInt}
