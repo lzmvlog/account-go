@@ -10,7 +10,11 @@ import (
 // List 获取科目列表
 func List(c *gin.Context) {
 	var sub []model.Subject
-	util.DB.Where("is_enable = 0").Find(&sub)
+	err := util.DB.Model(model.Subject{}).Where("is_enable = 0").Find(&sub).Error
+	if err != nil {
+		util.Fail(c, "find list error")
+		return
+	}
 	util.Success(c, gin.H{"subject": sub}, "")
 }
 
@@ -22,17 +26,29 @@ func Page(c *gin.Context) {
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
 		util.Fail(c, "Atoi error")
+		return
 	}
 
 	sizeInt, err := strconv.Atoi(size)
 	if err != nil {
 		util.Fail(c, "Atoi error")
+		return
 	}
+
 	var count int
-	util.DB.Model(model.Subject{}).Where("is_enable = 0").Count(&count)
+	errOne := util.DB.Model(model.Subject{}).Where("is_enable = 0").Count(&count).Error
+	if errOne != nil {
+		util.Fail(c, "count error")
+		return
+	}
 
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	util.DB.Model(model.Subject{}).Where("is_enable = 0").Limit(sizeInt).Offset(pageInt - 1*sizeInt).Find(&sub)
+	errFind := util.DB.Model(model.Subject{}).Where("is_enable = 0").Limit(sizeInt).Offset(pageInt - 1*sizeInt).Find(&sub).Error
+	if errFind != nil {
+		util.Fail(c, "find page error")
+		return
+	}
+
 	util.Success(c, gin.H{"page": util.PageDetail{DataList: sub, Count: count, CurrentPage: page, PageSize: size}}, "")
 }
 
@@ -41,7 +57,8 @@ func Save(c *gin.Context) {
 	tx := util.DB.Begin()
 	sub := model.Subject{}
 	c.ShouldBindJSON(&sub)
-	err := tx.Create(sub).Error
+	// 这里需要注意 create 传入的是结构体的指针
+	err := tx.Model(model.Subject{}).Create(&sub).Error
 	if err != nil {
 		util.Fail(c, "save subject error")
 		tx.Rollback()
@@ -73,6 +90,7 @@ func FindOne(c *gin.Context) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		util.Fail(c, "Atoi error")
+		return
 	}
 
 	sub := model.Subject{Id: idInt}
