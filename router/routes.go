@@ -7,13 +7,23 @@ import (
 
 // CollectRouter 路由设置
 func CollectRouter(r *gin.Engine) *gin.Engine {
+	// 科目路由
 	sub := r.Group("/sub")
 	{
-		sub.GET("/list", controller.List)
-		sub.POST("/save", controller.Save)
-		sub.POST("/update", controller.Update)
-		sub.GET("/page", controller.Page)
-		sub.GET("/findOne", controller.FindOne)
+		sub.GET("/listSub", controller.ListSubject)
+		sub.POST("/saveSub", controller.SaveSubject)
+		sub.POST("/updateSub", controller.UpdateSubject)
+		sub.GET("/pageSub", controller.PageSubject)
+		sub.GET("/findOneSub", controller.FindSubjectOne)
+	}
+
+	// 账单路由
+	bill := r.Group("/bill")
+	{
+		bill.GET("/listBill", controller.ListBill)
+		bill.POST("/saveBill", controller.SaveBill)
+		bill.GET("/pageBill", controller.PageBill)
+		bill.GET("/findOneBill", controller.FindBillOne)
 	}
 	return r
 }

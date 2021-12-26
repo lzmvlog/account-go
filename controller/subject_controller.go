@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-// List 获取科目列表
-func List(c *gin.Context) {
+// ListSubject 获取科目列表
+func ListSubject(c *gin.Context) {
 	var sub []model.Subject
 	err := util.DB.Model(model.Subject{}).Where("is_enable = 0").Find(&sub).Error
 	if err != nil {
@@ -18,8 +18,8 @@ func List(c *gin.Context) {
 	util.Success(c, gin.H{"subject": sub}, "")
 }
 
-// Page 分页信息
-func Page(c *gin.Context) {
+// PageSubject 分页信息
+func PageSubject(c *gin.Context) {
 	var sub []model.Subject
 	page, size := c.Query("page"), c.Query("size")
 
@@ -52,8 +52,8 @@ func Page(c *gin.Context) {
 	util.Success(c, gin.H{"page": util.PageDetail{DataList: sub, Count: count, CurrentPage: page, PageSize: size}}, "")
 }
 
-// Save 保存科目表表
-func Save(c *gin.Context) {
+// SaveSubject 保存科目表表
+func SaveSubject(c *gin.Context) {
 	tx := util.DB.Begin()
 	sub := model.Subject{}
 	c.ShouldBindJSON(&sub)
@@ -68,8 +68,8 @@ func Save(c *gin.Context) {
 	util.Success(c, gin.H{}, "")
 }
 
-// Update 更新科目表
-func Update(c *gin.Context) {
+// UpdateSubject 更新科目表
+func UpdateSubject(c *gin.Context) {
 	tx := util.DB.Begin()
 	sub := model.Subject{}
 	c.ShouldBindJSON(&sub)
@@ -84,7 +84,7 @@ func Update(c *gin.Context) {
 }
 
 // FindOne 根据id查询
-func FindOne(c *gin.Context) {
+func FindSubjectOne(c *gin.Context) {
 	id := c.Query("id")
 
 	idInt, err := strconv.Atoi(id)
