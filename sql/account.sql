@@ -11,19 +11,20 @@
  Target Server Version : 80019
  File Encoding         : 65001
 
- Date: 25/12/2021 22:03:12
+ Date: 26/12/2021 22:20:56
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for bill
+-- Table structure for bills
 -- ----------------------------
-DROP TABLE IF EXISTS `bill`;
-CREATE TABLE `bill`  (
+DROP TABLE IF EXISTS `bills`;
+CREATE TABLE `bills`  (
   `id` int(0) NOT NULL COMMENT 'id',
   `sub_id` int(0) NULL DEFAULT NULL COMMENT '科目id',
+  `sub_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '科目名称',
   `direction` int(0) NULL DEFAULT NULL COMMENT '0 借 1 贷',
   `amount` decimal(10, 2) NULL DEFAULT NULL COMMENT '金额数量',
   `create_date` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
