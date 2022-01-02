@@ -83,7 +83,7 @@ func UpdateSubject(c *gin.Context) {
 	util.Success(c, gin.H{}, "")
 }
 
-// FindOne 根据id查询
+// FindSubjectOne 根据id查询
 func FindSubjectOne(c *gin.Context) {
 	id := c.Query("id")
 

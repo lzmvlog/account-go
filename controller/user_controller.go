@@ -17,7 +17,6 @@ func Register(c *gin.Context) {
 
 	// 获取参数
 	name := c.PostForm("name")
-	phone := c.PostForm("phone")
 	password := c.PostForm("password")
 
 	user := model.User{
@@ -26,11 +25,6 @@ func Register(c *gin.Context) {
 	}
 	// 数据验证
 	if !userDataValidation(user, c) {
-		return
-	}
-	// 判断手机号是否存在
-	if isPhoneExits(db, phone) {
-		util.Response(c, http.StatusUnprocessableEntity, 442, nil, "当前手机号已经存在")
 		return
 	}
 

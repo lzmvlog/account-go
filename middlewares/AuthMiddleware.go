@@ -12,6 +12,11 @@ import (
 // AuthMiddleware 认证中间件
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 方行登录接口
+		if c.Request.URL.Path == "/api/login" {
+			c.Next()
+		}
+
 		// 获取 Authorization header
 		tokenString := c.GetHeader("Authorization")
 
