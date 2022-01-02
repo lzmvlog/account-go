@@ -7,6 +7,13 @@ import (
 
 // CollectRouter 路由设置
 func CollectRouter(r *gin.Engine) *gin.Engine {
+	// 用户路由
+	user := r.Group("/api")
+	{
+		user.POST("/login", controller.Login)
+		user.POST("/register", controller.Register)
+	}
+
 	// 科目路由
 	sub := r.Group("/sub")
 	{

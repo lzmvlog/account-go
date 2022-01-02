@@ -15,7 +15,10 @@ func main() {
 	// 关闭数据库连接
 	defer db.Close()
 	r := gin.Default()
+	// 中间件 处理跨域
 	r.Use(middlewares.Cors())
+	// 处理认证信息
+	r.Use(middlewares.AuthMiddleware())
 	r = router.CollectRouter(r)
 	port := config.Config.Server.Port
 	if port != "" {
