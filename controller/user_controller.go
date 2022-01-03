@@ -67,11 +67,11 @@ func Login(c *gin.Context) {
 	c.ShouldBindJSON(&userBo)
 
 	var user model.User
-	db.Where("user_name = ?", userBo.UserName).First(&user)
-	//if err != nil {
-	//	util.Fail(c, err.Error())
-	//	return
-	//}
+	err := db.Where("user_name = ?", userBo.UserName).First(&user).Error
+	if err != nil {
+		util.Response(c, http.StatusUnauthorized, 401, nil, err.Error())
+		return
+	}
 
 	// 验证密码是否通过
 	//if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userBo.Password)); err != nil {
