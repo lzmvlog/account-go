@@ -29,6 +29,8 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic("failed to connect database,err:" + err.Error())
 	}
+	// 配置打印SQL
+	db.LogMode(true)
 
 	// 自动创建数据表
 	// db.AutoMigrate(&Student{})

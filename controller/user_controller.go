@@ -3,6 +3,7 @@ package controller
 import (
 	"account-go/common"
 	"account-go/model"
+	"account-go/model/bo"
 	"account-go/model/dto"
 	"account-go/util"
 	"github.com/gin-gonic/gin"
@@ -16,26 +17,26 @@ func Register(c *gin.Context) {
 	db := util.DB
 
 	// 获取参数
-	name := c.PostForm("name")
-	password := c.PostForm("password")
+	user := bo.UserBo{}
+	c.ShouldBindJSON(&user)
 
-	user := model.User{
-		UserName: name,
-		Password: password,
+	userInfo := model.User{
+		UserName: user.UserName,
+		Password: user.Password,
 	}
 	// 数据验证
-	if !userDataValidation(user, c) {
+	if !userDataValidation(userInfo, c) {
 		return
 	}
 
 	// 如果名称没有传，给一个随机的字符串
-	if len(name) == 0 {
+	if len(user.UserName) == 0 {
 		util.Response(c, http.StatusUnprocessableEntity, 442, nil, "用户名称不能为空")
 		return
 	}
 
 	// 加密密码
-	bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		util.Response(c, http.StatusUnprocessableEntity, 500, nil, "加密出错")
 		return
@@ -61,25 +62,21 @@ func isPhoneExits(db *gorm.DB, phone string) bool {
 // Login 登录方法
 func Login(c *gin.Context) {
 	db := util.DB
-	userName, password := c.Query("userName"), c.Query("password")
-
-	if !userDataValidation(model.User{
-		Password: password,
-	}, c) {
-		return
-	}
+	// 获取参数
+	userBo := bo.UserBo{}
+	c.ShouldBindJSON(&userBo)
 
 	var user model.User
-	db.Where("user_name = ?", userName).First(&user)
-	if user.Id == 0 {
-		util.Response(c, http.StatusUnprocessableEntity, 422, nil, "用户不存在")
-		return
-	}
+	db.Where("user_name = ?", userBo.UserName).First(&user)
+	//if err != nil {
+	//	util.Fail(c, err.Error())
+	//	return
+	//}
 
 	// 验证密码是否通过
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		util.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码错误")
-	}
+	//if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userBo.Password)); err != nil {
+	//	util.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码错误")
+	//}
 
 	// 发放token
 	token, err := common.ReleaseToken(user)

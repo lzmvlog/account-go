@@ -12,7 +12,7 @@ func ListBill(c *gin.Context) {
 	var bills []model.Bill
 	err := util.DB.Model(model.Bill{}).Find(&bills).Error
 	if err != nil {
-		util.Fail(c, "find list error")
+		util.Fail(c, err.Error())
 		return
 	}
 	util.Success(c, gin.H{"bill": bills}, "")
@@ -25,27 +25,27 @@ func PageBill(c *gin.Context) {
 
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
-		util.Fail(c, "Atoi error")
+		util.Fail(c, err.Error())
 		return
 	}
 
 	sizeInt, err := strconv.Atoi(size)
 	if err != nil {
-		util.Fail(c, "Atoi error")
+		util.Fail(c, err.Error())
 		return
 	}
 
 	var count int
 	errOne := util.DB.Model(model.Bill{}).Where("is_enable = 0").Count(&count).Error
 	if errOne != nil {
-		util.Fail(c, "count error")
+		util.Fail(c, err.Error())
 		return
 	}
 
 	// Limit 么也显示多少条 Offset 从第几条数据开始
 	errFind := util.DB.Model(model.Bill{}).Where("is_enable = 0").Limit(sizeInt).Offset(pageInt - 1*sizeInt).Find(&billPage).Error
 	if errFind != nil {
-		util.Fail(c, "find page error")
+		util.Fail(c, err.Error())
 		return
 	}
 
@@ -60,12 +60,12 @@ func SaveBill(c *gin.Context) {
 	// 这里需要注意 create 传入的是结构体的指针
 	err := tx.Model(model.Bill{}).Create(&bill).Error
 	if err != nil {
-		util.Fail(c, "save bill error")
+		util.Fail(c, err.Error())
 		tx.Rollback()
 		return
 	}
 	tx.Commit()
-	util.Success(c, gin.H{}, "")
+	util.Success(c, gin.H{}, "新增成功")
 }
 
 //// UpdateBill 更新科目表
@@ -89,7 +89,7 @@ func FindBillOne(c *gin.Context) {
 
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		util.Fail(c, "Atoi error")
+		util.Fail(c, err.Error())
 		return
 	}
 

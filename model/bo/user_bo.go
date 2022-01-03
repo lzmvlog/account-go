@@ -1,8 +1,7 @@
-package model
+package bo
 
-// User 用户信息
-type User struct {
-	Id int `gorm:"primary_key" json:"id"`
+// UserBo 用户信息
+type UserBo struct {
 	// 用户昵称
 	UserName string `json:"userName"`
 	// 用户密码
