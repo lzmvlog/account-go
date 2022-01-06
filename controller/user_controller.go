@@ -7,7 +7,6 @@ import (
 	"account-go/model/dto"
 	"account-go/util"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
@@ -42,21 +41,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 新建学生信息
+	// 初始化用户信息
 	user.Password = string(bcryptPassword)
-	db.Create(&user)
+	errc := db.Create(&user).Error
+	if errc != nil {
+		util.Fail(c, errc.Error())
+	}
 
 	util.Success(c, nil, "注册成功")
-}
-
-// isPhoneExits 判断电话是否存在
-func isPhoneExits(db *gorm.DB, phone string) bool {
-	var user model.User
-	db.Where("phone = ?", phone).First(&user)
-	if user.Id != 0 {
-		return true
-	}
-	return false
 }
 
 // Login 登录方法
