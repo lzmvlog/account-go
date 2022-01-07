@@ -5,9 +5,9 @@ type PageDetail struct {
 	// 数据列表
 	DataList interface{} `json:"dataList"`
 	// 当前页
-	CurrentPage string `json:"current"`
+	CurrentPage int `json:"current"`
 	// 当前数量
 	Count int `json:"count"`
 	// 每页显示数量
-	PageSize string `json:"page"`
+	Size int `json:"size"`
 }

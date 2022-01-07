@@ -20,7 +20,6 @@ func ListSubject(c *gin.Context) {
 
 // PageSubject 分页信息
 func PageSubject(c *gin.Context) {
-	var sub []model.Subject
 	page, size := c.Query("page"), c.Query("size")
 
 	pageInt, err := strconv.Atoi(page)
@@ -42,6 +41,7 @@ func PageSubject(c *gin.Context) {
 		return
 	}
 
+	var sub []model.Subject
 	// Limit 么也显示多少条 Offset 从第几条数据开始
 	errFind := util.DB.Model(model.Subject{}).Where("is_enable = 0").Limit(sizeInt).Offset(pageInt - 1*sizeInt).Find(&sub).Error
 	if errFind != nil {
@@ -49,7 +49,7 @@ func PageSubject(c *gin.Context) {
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: sub, Count: count, CurrentPage: page, PageSize: size}}, "")
+	util.Success(c, gin.H{"page": util.PageDetail{DataList: sub, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }
 
 // SaveSubject 保存科目表表

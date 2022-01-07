@@ -20,7 +20,7 @@ func ListBill(c *gin.Context) {
 
 // PageBill 分页信息
 func PageBill(c *gin.Context) {
-	var billPage []model.Bill
+
 	page, size := c.Query("page"), c.Query("size")
 
 	pageInt, err := strconv.Atoi(page)
@@ -36,27 +36,30 @@ func PageBill(c *gin.Context) {
 	}
 
 	var count int
-	errOne := util.DB.Model(model.Bill{}).Where("is_enable = 0").Count(&count).Error
+	errOne := util.DB.Model(model.Bill{}).Count(&count).Error
 	if errOne != nil {
 		util.Fail(c, err.Error())
 		return
 	}
 
+	var billPage []model.Bill
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.Bill{}).Where("is_enable = 0").Limit(sizeInt).Offset(pageInt - 1*sizeInt).Find(&billPage).Error
+	errFind := util.DB.Model(model.Bill{}).Limit(sizeInt).Offset(pageInt - 1*sizeInt).Find(&billPage).Error
 	if errFind != nil {
 		util.Fail(c, err.Error())
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: billPage, Count: count, CurrentPage: page, PageSize: size}}, "")
+	util.Success(c, gin.H{"page": util.PageDetail{DataList: billPage, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }
 
 // SaveBill 保存科目表表
 func SaveBill(c *gin.Context) {
 	tx := util.DB.Begin()
 	bill := model.Bill{}
+
 	c.ShouldBindJSON(&bill)
+
 	// 这里需要注意 create 传入的是结构体的指针
 	err := tx.Model(model.Bill{}).Create(&bill).Error
 	if err != nil {
