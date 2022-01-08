@@ -43,7 +43,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			userId := claims.UserId
 			db := util.DB
 			var user model.User
-			db.First(&user, userId)
+			err = db.Model(model.User{}).First(&user, userId).Error
+			if err != nil {
+				util.Response(c, http.StatusUnprocessableEntity, 401, nil, err.Error())
+				c.Abort()
+				return
+			}
 
 			if user.Id == 0 {
 				util.Response(c, http.StatusUnprocessableEntity, 401, nil, "权限不足")
