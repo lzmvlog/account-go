@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strconv"
 )
 
 // Register 注册/开通账号
@@ -60,7 +61,7 @@ func Login(c *gin.Context) {
 	c.ShouldBindJSON(&userBo)
 
 	var user model.User
-	err := db.Where("user_name = ?", userBo.UserName).First(&user).Error
+	err := db.Where("user_name = ? and is_enable = 0", userBo.UserName).First(&user).Error
 	if err != nil {
 		util.Response(c, http.StatusUnauthorized, 401, nil, err.Error())
 		return
@@ -70,6 +71,11 @@ func Login(c *gin.Context) {
 	//if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userBo.Password)); err != nil {
 	//	util.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码错误")
 	//}
+
+	if user.Id == 0 {
+		util.Response(c, http.StatusUnauthorized, 401, nil, "当前账号未启用")
+		return
+	}
 
 	// 发放token
 	token, err := common.ReleaseToken(user)
@@ -115,4 +121,38 @@ func GetUser(c *gin.Context) model.User {
 		util.Fail(c, "序列化异常")
 	}
 	return user
+}
+
+// PageUser 分页信息
+func PageUser(c *gin.Context) {
+	page, size := c.Query("page"), c.Query("size")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	sizeInt, err := strconv.Atoi(size)
+	if err != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	var count int
+	errOne := util.DB.Model(model.User{}).Count(&count).Error
+	if errOne != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	var user []model.User
+	// Limit 么也显示多少条 Offset 从第几条数据开始
+	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&user).Error
+	if errFind != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	util.Success(c, gin.H{"page": util.PageDetail{DataList: user, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }

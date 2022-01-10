@@ -12,6 +12,7 @@ func CollectRouter(r *gin.Engine) *gin.Engine {
 	{
 		user.POST("/login", controller.Login)
 		user.POST("/register", controller.Register)
+		user.GET("/pageUser", controller.PageUser)
 	}
 
 	// 科目路由

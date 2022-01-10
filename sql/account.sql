@@ -56,6 +56,8 @@ CREATE TABLE `users`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '唯一键',
   `user_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户昵称',
   `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户密码',
+  `create_date` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `is_enable` int(0) NULL DEFAULT NULL COMMENT '0 启用 1 禁用',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
