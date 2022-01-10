@@ -6,6 +6,7 @@ import (
 	"account-go/model/bo"
 	"account-go/model/dto"
 	"account-go/util"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -95,4 +96,23 @@ func userDataValidation(user model.User, c *gin.Context) bool {
 func Info(c *gin.Context) {
 	user, _ := c.Get("user")
 	util.Success(c, gin.H{"user": dto.ToUserDTO(user.(model.User))}, "")
+}
+
+// GetUser 获取
+func GetUser(c *gin.Context) model.User {
+	value, exists := c.Get("user")
+	if !exists {
+		util.Fail(c, "请重新登录")
+	}
+	data, err := json.Marshal(value)
+	if err != nil {
+		util.Fail(c, "序列化异常")
+	}
+	var user model.User
+
+	err = json.Unmarshal(data, &user)
+	if err != nil {
+		util.Fail(c, "序列化异常")
+	}
+	return user
 }

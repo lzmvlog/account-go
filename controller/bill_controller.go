@@ -3,7 +3,6 @@ package controller
 import (
 	"account-go/model"
 	"account-go/util"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -43,9 +42,12 @@ func PageBill(c *gin.Context) {
 		return
 	}
 
+	var user model.User
+	user = GetUser(c)
+
 	var billPage []model.Bill
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.Bill{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&billPage).Error
+	errFind := util.DB.Model(model.Bill{}).Where("user_id = ?", user.Id).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&billPage).Error
 	if errFind != nil {
 		util.Fail(c, err.Error())
 		return
@@ -60,27 +62,13 @@ func SaveBill(c *gin.Context) {
 	bill := model.Bill{}
 
 	c.ShouldBindJSON(&bill)
-
-	value, exists := c.Get("user")
-	if !exists {
-		util.Fail(c, "请重新登录")
-		return
-	}
-	data, err := json.Marshal(value)
-	if err != nil {
-		util.Fail(c, "序列化异常")
-	}
 	var user model.User
-
-	err = json.Unmarshal(data, &user)
-	if err != nil {
-		util.Fail(c, "序列化异常")
-	}
+	user = GetUser(c)
 
 	bill.UserId = user.Id
 	bill.UserName = user.UserName
 	// 这里需要注意 create 传入的是结构体的指针
-	err = tx.Model(model.Bill{}).Create(&bill).Error
+	err := tx.Model(model.Bill{}).Create(&bill).Error
 	if err != nil {
 		util.Fail(c, err.Error())
 		tx.Rollback()
