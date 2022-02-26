@@ -43,7 +43,7 @@ func PageSubject(c *gin.Context) {
 
 	var sub []model.Subject
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.Subject{}).Where("is_enable = 0").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
+	errFind := util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
 	if errFind != nil {
 		util.Fail(c, err.Error())
 		return
