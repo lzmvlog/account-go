@@ -23,6 +23,7 @@ func CollectRouter(r *gin.Engine) *gin.Engine {
 		sub.POST("/updateSub", controller.UpdateSubject)
 		sub.GET("/pageSub", controller.PageSubject)
 		sub.GET("/findOneSub", controller.FindSubjectOne)
+		sub.GET("/disable/:id", controller.Disable)
 	}
 
 	// 账单路由

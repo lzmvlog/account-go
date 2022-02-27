@@ -62,3 +62,5 @@ CREATE TABLE `users`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+INSERT INTO `account`.`users` (`id`, `user_name`, `password`, `create_date`, `is_enable`) VALUES (1, 'admin', 'admin', '2022-02-27 14:33:36', 0);

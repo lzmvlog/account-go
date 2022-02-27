@@ -18,12 +18,13 @@ func Register(c *gin.Context) {
 	db := util.DB
 
 	// 获取参数
-	user := bo.UserBo{}
+	user := model.User{}
 	c.ShouldBindJSON(&user)
 
 	userInfo := model.User{
 		UserName: user.UserName,
 		Password: user.Password,
+		IsEnable: user.IsEnable,
 	}
 	// 数据验证
 	if !userDataValidation(userInfo, c) {
@@ -48,6 +49,7 @@ func Register(c *gin.Context) {
 	errc := db.Create(&user).Error
 	if errc != nil {
 		util.Fail(c, errc.Error())
+		return
 	}
 
 	util.Success(c, nil, "注册成功")

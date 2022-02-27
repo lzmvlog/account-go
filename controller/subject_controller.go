@@ -97,3 +97,28 @@ func FindSubjectOne(c *gin.Context) {
 	util.DB.Model(model.Subject{}).Find(&sub)
 	util.Success(c, gin.H{"subject": sub}, "")
 }
+
+// Disable 禁用科目
+func Disable(c *gin.Context) {
+	id := c.Param("id")
+	var sub model.Subject
+	err := util.DB.Model(model.Subject{}).Where("id= ?", id).Find(&sub).Error
+	if err != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	if sub.IsEnable == 0 {
+		sub.IsEnable = 1
+	} else {
+		sub.IsEnable = 0
+	}
+
+	err = util.DB.Model(model.Subject{}).Update(&sub).Error
+	if err != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	util.Success(c, gin.H{}, "")
+}
