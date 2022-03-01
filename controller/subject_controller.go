@@ -115,7 +115,7 @@ func DisableSubject(c *gin.Context) {
 		sub.IsEnable = 0
 	}
 
-	err = tx.Model(model.Subject{}).Where("id = ?", id).Update(&sub).Error
+	err = tx.Model(&sub).UpdateColumn("is_enable", sub.IsEnable).Error
 	if err != nil {
 		util.Fail(c, err.Error())
 		tx.Rollback()

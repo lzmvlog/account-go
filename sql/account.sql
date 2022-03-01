@@ -63,4 +63,4 @@ CREATE TABLE `users`  (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO `account`.`users` (`id`, `user_name`, `password`, `create_date`, `is_enable`) VALUES (1, 'admin', 'admin', '2022-02-27 14:33:36', 0);
+INSERT INTO `account`.`users` (`id`, `user_name`, `password`, `create_date`, `is_enable`) VALUES (1, 'admin', '$10$MHpxyTXS5yvC9VvUi.uNpe/GXsNoKInBLi9RKIMyw2HkddDQFysyO', '2022-02-27 14:33:36', 0);

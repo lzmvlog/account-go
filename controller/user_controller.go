@@ -67,16 +67,17 @@ func Login(c *gin.Context) {
 	c.ShouldBindJSON(&userBo)
 
 	var user model.User
-	err := db.Where("user_name = ? and is_enable = 0", userBo.UserName).First(&user).Error
+	err := db.Where("user_name = ?  and is_enable = 0", userBo.UserName).First(&user).Error
 	if err != nil {
 		util.Response(c, http.StatusUnauthorized, 401, nil, err.Error())
 		return
 	}
 
 	// 验证密码是否通过
-	//if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userBo.Password)); err != nil {
-	//	util.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码错误")
-	//}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userBo.Password)); err != nil {
+		util.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码错误")
+		return
+	}
 
 	if user.Id == 0 {
 		util.Response(c, http.StatusUnauthorized, 401, nil, "当前账号未启用")
@@ -180,7 +181,7 @@ func DisableUser(c *gin.Context) {
 		user.IsEnable = 0
 	}
 
-	err = tx.Model(&user).Update(&user).Error
+	err = tx.Model(&user).UpdateColumn("is_enable", user.IsEnable).Error
 	if err != nil {
 		util.Fail(c, err.Error())
 		tx.Rollback()
@@ -188,5 +189,35 @@ func DisableUser(c *gin.Context) {
 	}
 	tx.Commit()
 
+	util.Success(c, gin.H{}, "")
+}
+
+// GetOneUser 获取一个用户的信息
+func GetOneUser(c *gin.Context) {
+	id := c.Param("id")
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	user := model.User{Id: idInt}
+	util.DB.Model(model.User{}).Find(&user)
+	util.Success(c, gin.H{"user": user}, "")
+}
+
+// UpdateUser 更新用户
+func UpdateUser(c *gin.Context) {
+	tx := util.DB.Begin()
+	user := model.User{}
+	c.ShouldBindJSON(&user)
+	err := tx.Model(model.User{}).Where(user.Id).Updates(user).Error
+	if err != nil {
+		util.Fail(c, err.Error())
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 	util.Success(c, gin.H{}, "")
 }
