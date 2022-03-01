@@ -12,5 +12,5 @@ type Subject struct {
 	// 科目代码
 	Code string `json:"code"`
 	// 是否启用 0 启用 1 禁用
-	IsEnable int `json:"isEnable"`
+	IsEnable int `gorm:"force" json:"isEnable"`
 }

@@ -13,6 +13,7 @@ func CollectRouter(r *gin.Engine) *gin.Engine {
 		user.POST("/login", controller.Login)
 		user.POST("/register", controller.Register)
 		user.GET("/pageUser", controller.PageUser)
+		user.GET("/disable/:id", controller.DisableUser)
 	}
 
 	// 科目路由
@@ -23,7 +24,7 @@ func CollectRouter(r *gin.Engine) *gin.Engine {
 		sub.POST("/updateSub", controller.UpdateSubject)
 		sub.GET("/pageSub", controller.PageSubject)
 		sub.GET("/findOneSub", controller.FindSubjectOne)
-		sub.GET("/disable/:id", controller.Disable)
+		sub.GET("/disable/:id", controller.DisableSubject)
 	}
 
 	// 账单路由

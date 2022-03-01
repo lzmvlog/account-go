@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // Register 注册/开通账号
@@ -24,8 +25,8 @@ func Register(c *gin.Context) {
 	userInfo := model.User{
 		UserName: user.UserName,
 		Password: user.Password,
-		IsEnable: user.IsEnable,
 	}
+
 	// 数据验证
 	if !userDataValidation(userInfo, c) {
 		return
@@ -43,6 +44,9 @@ func Register(c *gin.Context) {
 		util.Response(c, http.StatusUnprocessableEntity, 500, nil, "加密出错")
 		return
 	}
+
+	// 添加时间
+	user.CreateDate = time.Now()
 
 	// 初始化用户信息
 	user.Password = string(bcryptPassword)
@@ -157,4 +161,32 @@ func PageUser(c *gin.Context) {
 	}
 
 	util.Success(c, gin.H{"page": util.PageDetail{DataList: user, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
+}
+
+// DisableUser 禁用科目
+func DisableUser(c *gin.Context) {
+	id := c.Param("id")
+	var user model.User
+	tx := util.DB.Begin()
+	err := tx.Model(model.User{}).Where("id= ?", id).Find(&user).Error
+	if err != nil {
+		util.Fail(c, err.Error())
+		return
+	}
+
+	if user.IsEnable == 0 {
+		user.IsEnable = 1
+	} else {
+		user.IsEnable = 0
+	}
+
+	err = tx.Model(&user).Update(&user).Error
+	if err != nil {
+		util.Fail(c, err.Error())
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
+
+	util.Success(c, gin.H{}, "")
 }

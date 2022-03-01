@@ -98,11 +98,12 @@ func FindSubjectOne(c *gin.Context) {
 	util.Success(c, gin.H{"subject": sub}, "")
 }
 
-// Disable 禁用科目
-func Disable(c *gin.Context) {
+// DisableSubject 禁用科目
+func DisableSubject(c *gin.Context) {
 	id := c.Param("id")
 	var sub model.Subject
-	err := util.DB.Model(model.Subject{}).Where("id= ?", id).Find(&sub).Error
+	tx := util.DB.Begin()
+	err := tx.Model(model.Subject{}).Where("id = ?", id).Find(&sub).Error
 	if err != nil {
 		util.Fail(c, err.Error())
 		return
@@ -114,11 +115,13 @@ func Disable(c *gin.Context) {
 		sub.IsEnable = 0
 	}
 
-	err = util.DB.Model(model.Subject{}).Update(&sub).Error
+	err = tx.Model(model.Subject{}).Where("id = ?", id).Update(&sub).Error
 	if err != nil {
 		util.Fail(c, err.Error())
+		tx.Rollback()
 		return
 	}
 
+	tx.Commit()
 	util.Success(c, gin.H{}, "")
 }
