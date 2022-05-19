@@ -12,7 +12,7 @@ type Bill struct {
 	SubId int `json:"subId"`
 	// 科目名称
 	SubName string `json:"subName"`
-	// 借贷方向 0 借 1 贷
+	// 借贷方向 1 借 2 贷
 	Direction int `json:"direction"`
 	// 金额数量
 	Amount decimal.Decimal `json:"amount"`

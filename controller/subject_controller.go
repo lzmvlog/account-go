@@ -35,7 +35,7 @@ func PageSubject(c *gin.Context) {
 	}
 
 	var count int
-	errOne := util.DB.Model(model.Subject{}).Where("is_enable = 0").Count(&count).Error
+	errOne := util.DB.Model(model.Subject{}).Count(&count).Error
 	if errOne != nil {
 		util.Fail(c, err.Error())
 		return
@@ -57,6 +57,13 @@ func SaveSubject(c *gin.Context) {
 	tx := util.DB.Begin()
 	sub := model.Subject{}
 	c.ShouldBindJSON(&sub)
+
+	var user model.User
+	user = GetUser(c)
+
+	sub.UserId = user.Id
+	sub.UserName = user.UserName
+
 	// 这里需要注意 create 传入的是结构体的指针
 	err := tx.Model(model.Subject{}).Create(&sub).Error
 	if err != nil {
@@ -92,10 +99,17 @@ func FindSubjectOne(c *gin.Context) {
 		util.Fail(c, err.Error())
 		return
 	}
+	var sub model.Subject
+	sub = SelectSubjectOne(idInt)
 
-	sub := model.Subject{Id: idInt}
-	util.DB.Model(model.Subject{}).Find(&sub)
 	util.Success(c, gin.H{"subject": sub}, "")
+}
+
+// SelectSubjectOne 根据借贷方向获取科目信息
+func SelectSubjectOne(subId int) model.Subject {
+	sub := model.Subject{Id: subId}
+	util.DB.Model(model.Subject{}).Find(&sub)
+	return sub
 }
 
 // DisableSubject 禁用科目

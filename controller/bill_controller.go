@@ -36,14 +36,14 @@ func PageBill(c *gin.Context) {
 	}
 
 	var count int
-	errOne := util.DB.Model(model.Bill{}).Count(&count).Error
+	var user model.User
+	user = GetUser(c)
+
+	errOne := util.DB.Model(model.Bill{}).Where("user_id = ?", user.Id).Count(&count).Error
 	if errOne != nil {
 		util.Fail(c, err.Error())
 		return
 	}
-
-	var user model.User
-	user = GetUser(c)
 
 	var billPage []model.Bill
 	// Limit 么也显示多少条 Offset 从第几条数据开始
@@ -56,17 +56,24 @@ func PageBill(c *gin.Context) {
 	util.Success(c, gin.H{"page": util.PageDetail{DataList: billPage, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }
 
-// SaveBill 保存科目表表
+// SaveBill 保存账单表
 func SaveBill(c *gin.Context) {
 	tx := util.DB.Begin()
 	bill := model.Bill{}
 
 	c.ShouldBindJSON(&bill)
 	var user model.User
+	// 获取用户信息
 	user = GetUser(c)
 
 	bill.UserId = user.Id
 	bill.UserName = user.UserName
+
+	var sub model.Subject
+	sub = SelectSubjectOne(bill.SubId)
+
+	bill.SubName = sub.SubName
+	bill.Direction = sub.Direction
 	// 这里需要注意 create 传入的是结构体的指针
 	err := tx.Model(model.Bill{}).Create(&bill).Error
 	if err != nil {

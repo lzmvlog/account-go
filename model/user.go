@@ -11,6 +11,6 @@ type User struct {
 	Password string `json:"password"`
 	// 创建时间
 	CreateDate time.Time `json:"createDate"`
-	// 是否启用 0 启用 1 禁用
+	// 是否启用 1 启用 2 禁用
 	IsEnable int `json:"isEnable"`
 }
