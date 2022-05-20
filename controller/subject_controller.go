@@ -10,7 +10,7 @@ import (
 // ListSubject 获取科目列表
 func ListSubject(c *gin.Context) {
 	var sub []model.Subject
-	err := util.DB.Model(model.Subject{}).Where("is_enable = 0").Find(&sub).Error
+	err := util.DB.Model(model.Subject{}).Where("is_enable = 1").Find(&sub).Error
 	if err != nil {
 		util.Fail(c, err.Error())
 		return

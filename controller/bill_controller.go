@@ -85,20 +85,20 @@ func SaveBill(c *gin.Context) {
 	util.Success(c, gin.H{}, "新增成功")
 }
 
-//// UpdateBill 更新科目表
-//func UpdateBill(c *gin.Context) {
-//	tx := util.DB.Begin()
-//	bill := model.Bill{}
-//	c.ShouldBindJSON(&bill)
-//	err := tx.Model(model.Bill{}).Where(bill.Id).Updates(bill).Error
-//	if err != nil {
-//		util.Fail(c, "update bill error")
-//		tx.Rollback()
-//		return
-//	}
-//	tx.Commit()
-//	util.Success(c, gin.H{}, "")
-//}
+// UpdateBill 更新科目表
+func UpdateBill(c *gin.Context) {
+	tx := util.DB.Begin()
+	bill := model.Bill{}
+	c.ShouldBindJSON(&bill)
+	err := tx.Model(model.Bill{}).Where(bill.Id).Updates(bill).Error
+	if err != nil {
+		util.Fail(c, "update bill error")
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
+	util.Success(c, gin.H{}, "")
+}
 
 // FindBillOne 根据id查询
 func FindBillOne(c *gin.Context) {

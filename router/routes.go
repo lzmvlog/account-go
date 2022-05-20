@@ -36,6 +36,7 @@ func CollectRouter(r *gin.Engine) *gin.Engine {
 		bill.POST("/saveBill", controller.SaveBill)
 		bill.GET("/pageBill", controller.PageBill)
 		bill.GET("/findOneBill", controller.FindBillOne)
+		bill.POST("/updateBill", controller.UpdateBill)
 	}
 	return r
 }
