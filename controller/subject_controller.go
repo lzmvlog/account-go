@@ -123,10 +123,10 @@ func DisableSubject(c *gin.Context) {
 		return
 	}
 
-	if sub.IsEnable == 0 {
-		sub.IsEnable = 1
+	if sub.IsEnable == 1 {
+		sub.IsEnable = 2
 	} else {
-		sub.IsEnable = 0
+		sub.IsEnable = 1
 	}
 
 	err = tx.Model(&sub).UpdateColumn("is_enable", sub.IsEnable).Error

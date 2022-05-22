@@ -175,10 +175,10 @@ func DisableUser(c *gin.Context) {
 		return
 	}
 
-	if user.IsEnable == 0 {
-		user.IsEnable = 1
+	if user.IsEnable == 1 {
+		user.IsEnable = 2
 	} else {
-		user.IsEnable = 0
+		user.IsEnable = 1
 	}
 
 	err = tx.Model(&user).UpdateColumn("is_enable", user.IsEnable).Error
