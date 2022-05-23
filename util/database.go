@@ -19,7 +19,7 @@ func InitDB() *gorm.DB {
 	password := config.Config.Datasource.Password
 	charset := config.Config.Datasource.Charset
 
-	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true",
+	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true&loc=Local",
 		userName, password, host, port, database, charset)
 
 	// 官方依赖 ：gorm.io/gorm 工具包 ：github.com/jinzhu/gorm

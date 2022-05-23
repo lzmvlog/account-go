@@ -62,18 +62,8 @@ func SaveBill(c *gin.Context) {
 	bill := model.Bill{}
 
 	c.ShouldBindJSON(&bill)
-	var user model.User
-	// 获取用户信息
-	user = GetUser(c)
 
-	bill.UserId = user.Id
-	bill.UserName = user.UserName
-
-	var sub model.Subject
-	sub = SelectSubjectOne(bill.SubId)
-
-	bill.SubName = sub.SubName
-	bill.Direction = sub.Direction
+	bill = GetBillSubject(bill, c)
 	// 这里需要注意 create 传入的是结构体的指针
 	err := tx.Model(model.Bill{}).Create(&bill).Error
 	if err != nil {
@@ -89,8 +79,11 @@ func SaveBill(c *gin.Context) {
 func UpdateBill(c *gin.Context) {
 	tx := util.DB.Begin()
 	bill := model.Bill{}
+
 	c.ShouldBindJSON(&bill)
-	err := tx.Model(model.Bill{}).Where(bill.Id).Updates(bill).Error
+
+	bill = GetBillSubject(bill, c)
+	err := tx.Model(model.Bill{}).Where(bill.Id).Updates(&bill).Error
 	if err != nil {
 		util.Fail(c, "update bill error")
 		tx.Rollback()
@@ -98,6 +91,22 @@ func UpdateBill(c *gin.Context) {
 	}
 	tx.Commit()
 	util.Success(c, gin.H{}, "")
+}
+
+// GetBillSubject 获取账单得科目信息
+func GetBillSubject(bill model.Bill, c *gin.Context) model.Bill {
+	var user model.User
+	// 获取用户信息
+	user = GetUser(c)
+	bill.UserId = user.Id
+	bill.UserName = user.UserName
+
+	var sub model.Subject
+	sub = SelectSubjectOne(bill.SubId)
+
+	bill.SubName = sub.SubName
+	bill.Direction = sub.Direction
+	return bill
 }
 
 // FindBillOne 根据id查询
