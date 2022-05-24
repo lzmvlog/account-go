@@ -22,6 +22,7 @@ type AppConfig struct {
 
 	// 数据库配置
 	Datasource struct {
+		Url        string `yaml:"url"`
 		DriverName string `yaml:"driverName"`
 		Host       string `yaml:"host"`
 		Port       string `yaml:"port"`

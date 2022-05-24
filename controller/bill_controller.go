@@ -35,7 +35,7 @@ func PageBill(c *gin.Context) {
 		return
 	}
 
-	var count int
+	var count int64
 	var user model.User
 	user = GetUser(c)
 

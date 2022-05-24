@@ -146,7 +146,7 @@ func PageUser(c *gin.Context) {
 		return
 	}
 
-	var count int
+	var count int64
 	errOne := util.DB.Model(model.User{}).Count(&count).Error
 	if errOne != nil {
 		util.Fail(c, err.Error())

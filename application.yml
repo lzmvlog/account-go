@@ -2,10 +2,6 @@ server:
   port: 8090
 
 datasource:
-  driverName: mysql
-  host: 127.0.0.1
-  port: 3306
-  database: account
+  url: root:root@tcp(127.0.0.1:3306)/account?charset=utf8&loc=Asia%2FShanghai&parseTime=true
   username: root
   password: root
-  charset: utf8

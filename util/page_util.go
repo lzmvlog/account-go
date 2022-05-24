@@ -7,7 +7,7 @@ type PageDetail struct {
 	// 当前页
 	CurrentPage int `json:"current"`
 	// 当前数量
-	Count int `json:"count"`
+	Count int64 `json:"count"`
 	// 每页显示数量
 	Size int `json:"size"`
 }

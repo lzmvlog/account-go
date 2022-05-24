@@ -11,9 +11,7 @@ import (
 func main() {
 
 	// 初始化数据库
-	db := util.InitDB()
-	// 关闭数据库连接
-	defer db.Close()
+	util.InitDB()
 	r := gin.Default()
 	// 中间件 处理跨域
 	r.Use(middlewares.Cors())

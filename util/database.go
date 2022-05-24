@@ -2,35 +2,33 @@ package util
 
 import (
 	"account-go/config"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"time"
 )
 
 var DB *gorm.DB
 
 // InitDB 初始化数据库连接
 func InitDB() *gorm.DB {
-	driverName := config.Config.Datasource.DriverName
-	host := config.Config.Datasource.Host
-	port := config.Config.Datasource.Port
-	database := config.Config.Datasource.Database
-	userName := config.Config.Datasource.Username
-	password := config.Config.Datasource.Password
-	charset := config.Config.Datasource.Charset
-
-	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true&loc=Local",
-		userName, password, host, port, database, charset)
-
-	// 官方依赖 ：gorm.io/gorm 工具包 ：github.com/jinzhu/gorm
-	// 官方的 gorm.Open() 方法： Open(dialector Dialector, opts ...Option)
-	// 工具包方法: Open(dialect string, args ...interface{})
-	db, err := gorm.Open(driverName, args)
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
+		logger.Config{
+			SlowThreshold:             time.Second, // 慢 SQL 阈值
+			LogLevel:                  logger.Info, // 日志级别
+			IgnoreRecordNotFoundError: true,        // 忽略ErrRecordNotFound（记录未找到）错误
+			Colorful:                  true,        // 禁用彩色打印
+		})
+	db, err := gorm.Open(mysql.Open(config.Config.Datasource.Url), &gorm.Config{
+		Logger: newLogger,
+	})
 	if err != nil {
 		panic("failed to connect database,err:" + err.Error())
 	}
-	// 配置打印SQL
-	db.LogMode(true)
 
 	// 自动创建数据表
 	// db.AutoMigrate(&Student{})

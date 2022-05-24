@@ -3,14 +3,11 @@ module account-go
 go 1.17
 
 require (
-	github.com/gin-gonic/gin v1.7.7
-	github.com/jinzhu/gorm v1.9.16
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+ 	github.com/gin-gonic/gin v1.7.7
 	gopkg.in/yaml.v2 v2.4.0
-)
-
-require github.com/dgrijalva/jwt-go v3.2.0+incompatible
-
-require (
+	github.com/jinzhu/now v1.1.4 // indirect
+	gorm.io/driver/mysql v1.3.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
@@ -29,4 +26,5 @@ require (
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gorm.io/gorm v1.23.5
 )
