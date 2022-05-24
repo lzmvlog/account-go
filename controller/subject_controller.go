@@ -22,6 +22,8 @@ func ListSubject(c *gin.Context) {
 func PageSubject(c *gin.Context) {
 	page, size := c.Query("page"), c.Query("size")
 
+	subName := c.Query("subName")
+
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
 		util.Fail(c, err.Error())
@@ -35,16 +37,25 @@ func PageSubject(c *gin.Context) {
 	}
 
 	var count int64
-	errOne := util.DB.Model(model.Subject{}).Count(&count).Error
-	if errOne != nil {
+	if subName != "" {
+		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Count(&count).Error
+	} else {
+		err = util.DB.Model(model.Subject{}).Count(&count).Error
+	}
+	if err != nil {
 		util.Fail(c, err.Error())
 		return
 	}
 
 	var sub []model.Subject
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
-	if errFind != nil {
+	if subName != "" {
+		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
+	} else {
+		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
+	}
+
+	if err != nil {
 		util.Fail(c, err.Error())
 		return
 	}
