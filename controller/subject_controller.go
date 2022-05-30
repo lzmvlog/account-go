@@ -47,12 +47,12 @@ func PageSubject(c *gin.Context) {
 		return
 	}
 
-	var sub []model.Subject
+	list := make([]model.Subject, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
 	if subName != "" {
-		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
+		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	} else {
-		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&sub).Error
+		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	}
 
 	if err != nil {
@@ -60,7 +60,7 @@ func PageSubject(c *gin.Context) {
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: sub, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
+	util.Success(c, gin.H{"page": util.PageDetail{DataList: list, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }
 
 // SaveSubject 保存科目表表

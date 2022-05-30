@@ -153,15 +153,15 @@ func PageUser(c *gin.Context) {
 		return
 	}
 
-	var user []model.User
+	list := make([]model.User, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&user).Error
+	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	if errFind != nil {
 		util.Fail(c, err.Error())
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: user, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
+	util.Success(c, gin.H{"page": util.PageDetail{DataList: list, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }
 
 // DisableUser 禁用科目

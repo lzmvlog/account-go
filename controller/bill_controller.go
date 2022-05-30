@@ -45,15 +45,15 @@ func PageBill(c *gin.Context) {
 		return
 	}
 
-	var billPage []model.Bill
+	list := make([]model.Bill, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.Bill{}).Where("user_id = ?", user.Id).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&billPage).Error
+	errFind := util.DB.Model(model.Bill{}).Where("user_id = ?", user.Id).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	if errFind != nil {
 		util.Fail(c, err.Error())
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: billPage, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
+	util.Success(c, gin.H{"page": util.PageDetail{DataList: list, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
 }
 
 // SaveBill 保存账单表
