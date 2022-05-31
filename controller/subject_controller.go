@@ -12,10 +12,10 @@ func ListSubject(c *gin.Context) {
 	var sub []model.Subject
 	err := util.DB.Model(model.Subject{}).Where("is_enable = 1").Find(&sub).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
-	util.Success(c, gin.H{"subject": sub}, "")
+	util.Success(c, sub)
 }
 
 // PageSubject 分页信息
@@ -26,41 +26,31 @@ func PageSubject(c *gin.Context) {
 
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
 	sizeInt, err := strconv.Atoi(size)
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
 	var count int64
-	if subName != "" {
-		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Count(&count).Error
-	} else {
-		err = util.DB.Model(model.Subject{}).Count(&count).Error
-	}
-	if err != nil {
-		util.Fail(c, err.Error())
-		return
-	}
-
 	list := make([]model.Subject, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
 	if subName != "" {
-		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
+		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
 	} else {
-		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
+		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
 	}
 
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: list, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
+	util.PageSuccess(c, list, count, pageInt, sizeInt)
 }
 
 // SaveSubject 保存科目表表
@@ -78,12 +68,12 @@ func SaveSubject(c *gin.Context) {
 	// 这里需要注意 create 传入的是结构体的指针
 	err := tx.Model(model.Subject{}).Create(&sub).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		tx.Rollback()
 		return
 	}
 	tx.Commit()
-	util.Success(c, gin.H{}, "")
+	util.Success(c, nil)
 }
 
 // UpdateSubject 更新科目表
@@ -93,12 +83,12 @@ func UpdateSubject(c *gin.Context) {
 	c.ShouldBindJSON(&sub)
 	err := tx.Model(model.Subject{}).Where(sub.Id).Updates(sub).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		tx.Rollback()
 		return
 	}
 	tx.Commit()
-	util.Success(c, gin.H{}, "")
+	util.Success(c, nil)
 }
 
 // FindSubjectOne  根据id查询
@@ -107,13 +97,13 @@ func FindSubjectOne(c *gin.Context) {
 
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 	var sub model.Subject
 	sub = SelectSubjectOne(idInt)
 
-	util.Success(c, gin.H{"subject": sub}, "")
+	util.Success(c, sub)
 }
 
 // SelectSubjectOne 根据借贷方向获取科目信息
@@ -130,7 +120,7 @@ func DisableSubject(c *gin.Context) {
 	tx := util.DB.Begin()
 	err := tx.Model(model.Subject{}).Where("id = ?", id).Find(&sub).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
@@ -142,11 +132,11 @@ func DisableSubject(c *gin.Context) {
 
 	err = tx.Model(&sub).UpdateColumn("is_enable", sub.IsEnable).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		tx.Rollback()
 		return
 	}
 
 	tx.Commit()
-	util.Success(c, gin.H{}, "")
+	util.Success(c, nil)
 }

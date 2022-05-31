@@ -34,14 +34,14 @@ func Register(c *gin.Context) {
 
 	// 如果名称没有传，给一个随机的字符串
 	if len(user.UserName) == 0 {
-		util.Response(c, http.StatusUnprocessableEntity, 442, nil, "用户名称不能为空")
+		util.Response(c, http.StatusUnprocessableEntity, nil, "用户名称不能为空")
 		return
 	}
 
 	// 加密密码
 	bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		util.Response(c, http.StatusUnprocessableEntity, 500, nil, "加密出错")
+		util.Response(c, http.StatusUnprocessableEntity, nil, "加密出错")
 		return
 	}
 
@@ -52,11 +52,11 @@ func Register(c *gin.Context) {
 	user.Password = string(bcryptPassword)
 	errc := db.Create(&user).Error
 	if errc != nil {
-		util.Fail(c, errc.Error())
+		util.FailMessage(c, errc.Error())
 		return
 	}
 
-	util.Success(c, nil, "注册成功")
+	util.Success(c, nil)
 }
 
 // Login 登录方法
@@ -69,7 +69,7 @@ func Login(c *gin.Context) {
 	var user model.User
 	err := db.Where("user_name = ?  and is_enable = 1", userBo.UserName).First(&user).Error
 	if err != nil {
-		util.Response(c, http.StatusUnauthorized, 401, nil, err.Error())
+		util.Response(c, http.StatusUnauthorized, nil, err.Error())
 		return
 	}
 
@@ -80,17 +80,17 @@ func Login(c *gin.Context) {
 	//}
 
 	if user.Id == 0 {
-		util.Response(c, http.StatusUnauthorized, 401, nil, "当前账号未启用")
+		util.Response(c, http.StatusUnauthorized, nil, "当前账号未启用")
 		return
 	}
 
 	// 发放token
 	token, err := common.ReleaseToken(user)
 	if err != nil {
-		util.Response(c, http.StatusUnprocessableEntity, 500, nil, "系统异常")
+		util.Response(c, http.StatusUnprocessableEntity, nil, "系统异常")
 	}
 
-	util.Success(c, gin.H{"token": token}, "登录成功")
+	util.Success(c, token)
 
 }
 
@@ -98,7 +98,7 @@ func Login(c *gin.Context) {
 func userDataValidation(user model.User, c *gin.Context) bool {
 
 	if len(user.Password) < 6 {
-		util.Response(c, http.StatusUnprocessableEntity, 500, nil, "密码不能小于6位")
+		util.Response(c, http.StatusInternalServerError, nil, "密码不能小于6位")
 		return false
 	}
 
@@ -108,24 +108,24 @@ func userDataValidation(user model.User, c *gin.Context) bool {
 // Info 获取用户信息
 func Info(c *gin.Context) {
 	user, _ := c.Get("user")
-	util.Success(c, gin.H{"user": dto.ToUserDTO(user.(model.User))}, "")
+	util.Success(c, dto.ToUserDTO(user.(model.User)))
 }
 
 // GetUser 获取
 func GetUser(c *gin.Context) model.User {
 	value, exists := c.Get("user")
 	if !exists {
-		util.Fail(c, "请重新登录")
+		util.FailMessage(c, "请重新登录")
 	}
 	data, err := json.Marshal(value)
 	if err != nil {
-		util.Fail(c, "序列化异常")
+		util.FailMessage(c, "序列化异常")
 	}
 	var user model.User
 
 	err = json.Unmarshal(data, &user)
 	if err != nil {
-		util.Fail(c, "序列化异常")
+		util.FailMessage(c, "序列化异常")
 	}
 	return user
 }
@@ -136,32 +136,27 @@ func PageUser(c *gin.Context) {
 
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
 	sizeInt, err := strconv.Atoi(size)
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
 	var count int64
-	errOne := util.DB.Model(model.User{}).Count(&count).Error
-	if errOne != nil {
-		util.Fail(c, err.Error())
-		return
-	}
 
 	list := make([]model.User, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
+	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
 	if errFind != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
-	util.Success(c, gin.H{"page": util.PageDetail{DataList: list, Count: count, CurrentPage: pageInt, Size: sizeInt}}, "")
+	util.PageSuccess(c, list, count, pageInt, sizeInt)
 }
 
 // DisableUser 禁用科目
@@ -171,7 +166,7 @@ func DisableUser(c *gin.Context) {
 	tx := util.DB.Begin()
 	err := tx.Model(model.User{}).Where("id= ?", id).Find(&user).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
@@ -183,13 +178,13 @@ func DisableUser(c *gin.Context) {
 
 	err = tx.Model(&user).UpdateColumn("is_enable", user.IsEnable).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		tx.Rollback()
 		return
 	}
 	tx.Commit()
 
-	util.Success(c, gin.H{}, "")
+	util.Success(c, nil)
 }
 
 // GetOneUser 获取一个用户的信息
@@ -198,13 +193,13 @@ func GetOneUser(c *gin.Context) {
 
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		return
 	}
 
 	user := model.User{Id: idInt}
 	util.DB.Model(model.User{}).Find(&user)
-	util.Success(c, gin.H{"user": user}, "")
+	util.Success(c, user)
 }
 
 // UpdateUser 更新用户
@@ -214,10 +209,10 @@ func UpdateUser(c *gin.Context) {
 	c.ShouldBindJSON(&user)
 	err := tx.Model(model.User{}).Where(user.Id).Updates(user).Error
 	if err != nil {
-		util.Fail(c, err.Error())
+		util.FailMessage(c, err.Error())
 		tx.Rollback()
 		return
 	}
 	tx.Commit()
-	util.Success(c, gin.H{}, "")
+	util.Success(c, nil)
 }
