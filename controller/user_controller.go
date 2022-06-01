@@ -34,14 +34,14 @@ func Register(c *gin.Context) {
 
 	// 如果名称没有传，给一个随机的字符串
 	if len(user.UserName) == 0 {
-		util.Response(c, http.StatusUnprocessableEntity, nil, "用户名称不能为空")
+		util.Response(c, http.StatusUnprocessableEntity, "用户名称不能为空")
 		return
 	}
 
 	// 加密密码
 	bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		util.Response(c, http.StatusUnprocessableEntity, nil, "加密出错")
+		util.Response(c, http.StatusUnprocessableEntity, "加密出错")
 		return
 	}
 
@@ -69,7 +69,7 @@ func Login(c *gin.Context) {
 	var user model.User
 	err := db.Where("user_name = ?  and is_enable = 1", userBo.UserName).First(&user).Error
 	if err != nil {
-		util.Response(c, http.StatusUnauthorized, nil, err.Error())
+		util.Response(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
@@ -80,14 +80,14 @@ func Login(c *gin.Context) {
 	//}
 
 	if user.Id == 0 {
-		util.Response(c, http.StatusUnauthorized, nil, "当前账号未启用")
+		util.Response(c, http.StatusUnauthorized, "当前账号未启用")
 		return
 	}
 
 	// 发放token
 	token, err := common.ReleaseToken(user)
 	if err != nil {
-		util.Response(c, http.StatusUnprocessableEntity, nil, "系统异常")
+		util.Response(c, http.StatusUnprocessableEntity, "系统异常")
 	}
 
 	util.Success(c, token)
@@ -98,7 +98,7 @@ func Login(c *gin.Context) {
 func userDataValidation(user model.User, c *gin.Context) bool {
 
 	if len(user.Password) < 6 {
-		util.Response(c, http.StatusInternalServerError, nil, "密码不能小于6位")
+		util.Response(c, http.StatusInternalServerError, "密码不能小于6位")
 		return false
 	}
 
@@ -147,10 +147,14 @@ func PageUser(c *gin.Context) {
 	}
 
 	var count int64
-
+	errOne := util.DB.Model(model.User{}).Count(&count).Error
+	if errOne != nil {
+		util.FailMessage(c, err.Error())
+		return
+	}
 	list := make([]model.User, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
+	errFind := util.DB.Model(model.User{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	if errFind != nil {
 		util.FailMessage(c, err.Error())
 		return

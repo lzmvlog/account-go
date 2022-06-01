@@ -37,12 +37,18 @@ func PageSubject(c *gin.Context) {
 	}
 
 	var count int64
+	errOne := util.DB.Model(model.Subject{}).Count(&count).Error
+	if errOne != nil {
+		util.FailMessage(c, err.Error())
+		return
+	}
+
 	list := make([]model.Subject, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
 	if subName != "" {
 		err = util.DB.Model(model.Subject{}).Where("sub_name LIKE ?", "%"+subName+"%").Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
 	} else {
-		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
+		err = util.DB.Model(model.Subject{}).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	}
 
 	if err != nil {

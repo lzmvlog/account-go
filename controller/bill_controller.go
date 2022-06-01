@@ -36,12 +36,17 @@ func PageBill(c *gin.Context) {
 	}
 
 	var count int64
+	errOne := util.DB.Model(model.Bill{}).Count(&count).Error
+	if errOne != nil {
+		util.FailMessage(c, err.Error())
+		return
+	}
 	var user model.User
 	user = GetUser(c)
 
 	list := make([]model.Bill, 0)
 	// Limit 么也显示多少条 Offset 从第几条数据开始
-	errFind := util.DB.Model(model.Bill{}).Where("user_id = ?", user.Id).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Count(&count).Error
+	errFind := util.DB.Model(model.Bill{}).Where("user_id = ?", user.Id).Limit(sizeInt).Offset((pageInt - 1) * sizeInt).Find(&list).Error
 	if errFind != nil {
 		util.FailMessage(c, err.Error())
 		return

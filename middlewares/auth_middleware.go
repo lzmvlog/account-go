@@ -21,7 +21,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 			// 验证格式
 			if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer") {
-				util.Response(c, http.StatusUnauthorized, nil, "权限不足")
+				util.Response(c, http.StatusUnauthorized, "权限不足")
 				// Abort 防止挂起的处理程序被调用。请注意，这不会停止当前处理程序。
 				// 假设您有一个授权中间件来验证当前请求是否已获得授权。如果授权失败（例如：密码不匹配），
 				//则调用 Abort 以确保不会调用此请求的其余处理程序。
@@ -34,7 +34,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			token, claims, err := common.ParseToken(tokenString)
 
 			if err != nil || !token.Valid {
-				util.Response(c, http.StatusUnauthorized, nil, "权限不足")
+				util.Response(c, http.StatusUnauthorized, "权限不足")
 				c.Abort()
 				return
 			}
@@ -45,13 +45,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			var user model.User
 			err = db.Model(model.User{}).First(&user, userId).Error
 			if err != nil {
-				util.Response(c, http.StatusUnauthorized, nil, err.Error())
+				util.Response(c, http.StatusUnauthorized, err.Error())
 				c.Abort()
 				return
 			}
 
 			if user.Id == 0 {
-				util.Response(c, http.StatusUnauthorized, nil, "权限不足")
+				util.Response(c, http.StatusUnauthorized, "权限不足")
 				c.Abort()
 				return
 			}

@@ -11,8 +11,8 @@ const (
 )
 
 // Response 返回统一信息
-func Response(c *gin.Context, httpStatus int, data gin.H, message string) {
-	c.JSON(httpStatus, gin.H{"code": httpStatus, "data": data, "msg": message})
+func Response(c *gin.Context, httpStatus int, message string) {
+	c.JSON(httpStatus, gin.H{"code": httpStatus, "msg": message})
 }
 
 // ResponseFail 返回统一信息
@@ -42,7 +42,7 @@ func PageSuccess(c *gin.Context, data interface{}, total int64, page int, size i
 
 // Success 请求成功
 func Success(c *gin.Context, data interface{}) {
-	ResponseSuccess(c, http.StatusOK, data, FAIL)
+	ResponseSuccess(c, http.StatusOK, data, SUCCESS)
 }
 
 // FailMessage 请求失败
@@ -52,5 +52,5 @@ func FailMessage(c *gin.Context, message string) {
 
 // Fail 请求失败
 func Fail(c *gin.Context) {
-	Response(c, http.StatusInternalServerError, gin.H{}, FAIL)
+	Response(c, http.StatusInternalServerError, FAIL)
 }
